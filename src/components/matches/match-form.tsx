@@ -75,29 +75,32 @@ function parseScore(score: string): {
   };
 }
 
-/** Lee la ultima partida registrada desde localStorage (mazo, version, rival). */
+/** Lee la ultima partida registrada desde localStorage (mazo, version, rival, torneo). */
 function loadLastMatchPrefs(): {
   deckVersionId: string | null;
   opponentLegendId: string | null;
+  eventId: string | null;
 } {
   if (typeof window === "undefined")
-    return { deckVersionId: null, opponentLegendId: null };
+    return { deckVersionId: null, opponentLegendId: null, eventId: null };
   try {
     const raw = window.localStorage.getItem("rb:last_match");
-    if (!raw) return { deckVersionId: null, opponentLegendId: null };
+    if (!raw) return { deckVersionId: null, opponentLegendId: null, eventId: null };
     const parsed = JSON.parse(raw);
     return {
       deckVersionId: parsed.deckVersionId ?? null,
       opponentLegendId: parsed.opponentLegendId ?? null,
+      eventId: parsed.eventId ?? null,
     };
   } catch {
-    return { deckVersionId: null, opponentLegendId: null };
+    return { deckVersionId: null, opponentLegendId: null, eventId: null };
   }
 }
 
 function saveLastMatchPrefs(prefs: {
   deckVersionId: string | null;
   opponentLegendId: string | null;
+  eventId: string | null;
 }) {
   if (typeof window === "undefined") return;
   try {
@@ -142,7 +145,20 @@ export function MatchForm({
   const [opponentArchetype, setOpponentArchetype] = useState(
     match?.opponent_archetype ?? ""
   );
-  const [eventId, setEventId] = useState<string | null>(match?.event_id ?? null);
+  const [eventId, setEventId] = useState<string | null>(() => {
+    if (isEdit) return match?.event_id ?? null;
+    const prefs = loadLastMatchPrefs();
+    // Último torneo registrado (el más reciente por fecha de inicio).
+    const lastEvent =
+      prefs.eventId ??
+      [...options.events]
+        .sort(
+          (a, b) =>
+            (b.start_date ?? "").localeCompare(a.start_date ?? "")
+        )[0]?.id ??
+      null;
+    return lastEvent ?? match?.event_id ?? null;
+  });
   // Valor por defecto: el último set disponible (el más reciente).
   const [setId, setSetId] = useState<string | null>(() => {
     if (isEdit) return match?.event_set_id ?? null;
@@ -161,11 +177,11 @@ export function MatchForm({
     match?.note_category ?? "otros"
   );
 
-  // Guardar prefs al cambiar mazo o rival (para recordar la última partida).
+  // Guardar prefs al cambiar mazo, rival o torneo (para recordar la última partida).
   useMemo(() => {
     if (isEdit) return;
-    saveLastMatchPrefs({ deckVersionId, opponentLegendId });
-  }, [isEdit, deckVersionId, opponentLegendId]);
+    saveLastMatchPrefs({ deckVersionId, opponentLegendId, eventId });
+  }, [isEdit, deckVersionId, opponentLegendId, eventId]);
 
   const availableScores = SCORE_BY_RESULT[result];
 
@@ -188,10 +204,15 @@ export function MatchForm({
     label: legendLabel(legend),
   }));
 
-  const eventOptions = options.events.map((event) => ({
-    value: event.id,
-    label: event.name,
-  }));
+  const eventOptions = [...options.events]
+    .sort(
+      (a, b) =>
+        (b.start_date ?? "").localeCompare(a.start_date ?? "")
+    )
+    .map((event) => ({
+      value: event.id,
+      label: event.name,
+    }));
 
   const setOptions = options.sets.map((set) => ({
     value: set.id,
