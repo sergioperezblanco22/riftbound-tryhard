@@ -23,6 +23,12 @@ export const metadata: Metadata = {
   },
   description:
     "Tracker competitivo personal y AI Coach para jugadores de Riftbound.",
+  viewport: {
+    width: "device-width",
+    initialScale: 1,
+    maximumScale: 1,
+    viewportFit: "cover",
+  },
 };
 
 export default function RootLayout({ children }: LayoutProps<"/">) {
@@ -32,7 +38,10 @@ export default function RootLayout({ children }: LayoutProps<"/">) {
       suppressHydrationWarning
       className={`${geistSans.variable} ${geistMono.variable} h-full antialiased`}
     >
-      <body className="min-h-full">
+      <body
+        className="min-h-full touch-manipulation selection:bg-primary selection:text-primary-foreground"
+        suppressHydrationWarning
+      >
         <ThemeProvider
           attribute="class"
           defaultTheme="dark"

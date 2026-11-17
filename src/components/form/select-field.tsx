@@ -1,6 +1,6 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useCallback, useMemo, useRef, useState } from "react";
 
 import { Label } from "@/components/ui/label";
 import {
@@ -25,7 +25,8 @@ export interface SelectOption {
  * oculto (prop `name` de Base UI Select).
  *
  * Cuando `searchable` es true, se muestra un input de texto dentro del desplegable
- * para filtrar las opciones al escribir.
+ * para filtrar las opciones al escribir. El input de busqueda usa un ref para
+ * mantener el foco en iOS Safari cuando el desplegable se re-renderiza al filtrar.
  */
 export function SelectField({
   id,
@@ -41,11 +42,7 @@ export function SelectField({
   searchable = false,
 }: {
   id: string;
-  /** Opcional: si se omite, el Select no renderiza input oculto propio. Se recomienda
-   * usar un input hidden externo cuando el campo pertenece a un formulario con
-   * inputs ocultos gestionados manualmente (p. ej. un wizard con pasos condicionales). */
   name?: string;
-  /** Opcional: si se omite, no se renderiza etiqueta interna. */
   label?: string;
   placeholder: string;
   value: string | null;
@@ -64,12 +61,21 @@ export function SelectField({
     [options, emptyLabel]
   );
   const [search, setSearch] = useState("");
+  const searchInputRef = useRef<HTMLInputElement>(null);
 
   const filteredItems = useMemo(() => {
     if (!searchable || !search.trim()) return items;
     const q = search.toLowerCase();
     return items.filter((item) => item.label.toLowerCase().includes(q));
   }, [items, search, searchable]);
+
+  // Mantener el foco en el input de busqueda cuando el desplegable se
+  // re-renderiza por el filtrado (problema comun en iOS Safari).
+  const restoreFocus = useCallback(() => {
+    if (searchInputRef.current) {
+      searchInputRef.current.focus();
+    }
+  }, []);
 
   return (
     <div className={className}>
@@ -97,11 +103,17 @@ export function SelectField({
           {searchable && (
             <div className="relative px-2 py-1.5 border-b bg-muted/50">
               <Input
+                ref={searchInputRef}
                 id={`${id}-search`}
                 placeholder="Buscar…"
+                defaultValue={search}
                 className="h-8 text-sm pl-8 pr-2 bg-background"
-                value={search}
-                onChange={(e) => setSearch(e.target.value)}
+                onChange={(e) => {
+                  setSearch(e.target.value);
+                  // Restaurar el foco tras el re-render para que el teclado
+                  // no se cierre en iOS Safari.
+                  requestAnimationFrame(restoreFocus);
+                }}
               />
               <SearchIcon
                 className="absolute left-2.5 top-[50%] -translate-y-[50%] size-4 text-muted-foreground"
