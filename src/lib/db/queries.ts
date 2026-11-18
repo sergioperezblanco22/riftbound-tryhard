@@ -26,6 +26,7 @@ import type {
   MatchEnrichedRow,
   MatchFilters,
   MatchNoteRow,
+  MatchSideboardChangeRow,
   MatchupCell,
   NoteSearchResult,
   ProfileRow,
@@ -230,12 +231,25 @@ export async function getMatchDetail(id: string): Promise<MatchDetail | null> {
       notes: store.notes
         .filter((n) => n.match_id === id)
         .sort((a, b) => a.created_at.localeCompare(b.created_at)),
+      sideboard_changes: store.sideboard_changes
+        .filter((s) => s.match_id === id)
+        .sort((a, b) => a.game_number - b.game_number),
     };
   }
 
   const { data } = await supabase.rpc("get_match_detail", { p_match_id: id });
   if (!data) return null;
-  return data as MatchDetail;
+
+  const { data: sideboardChanges } = await supabase
+    .from("match_sideboard_changes")
+    .select("*")
+    .eq("match_id", id)
+    .order("game_number", { ascending: true });
+
+  return {
+    ...(data as MatchDetail),
+    sideboard_changes: (sideboardChanges ?? []) as MatchSideboardChangeRow[],
+  };
 }
 
 export interface DeckListItem extends DeckRow {

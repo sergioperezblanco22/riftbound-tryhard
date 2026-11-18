@@ -1,6 +1,6 @@
 import Link from "next/link";
 import { notFound } from "next/navigation";
-import { ArrowLeftIcon, Trash2Icon } from "lucide-react";
+import { ArrowLeftIcon, PlusIcon, Trash2Icon } from "lucide-react";
 
 import { BreakdownBarChart } from "@/components/charts/breakdown-bar-chart";
 import { ConfirmButton } from "@/components/confirm-button";
@@ -47,6 +47,15 @@ export default async function EventDetailPage({
         description={`${formatDate(event.start_date)}${set ? ` · ${set.code} ${set.name}` : ""}${event.location ? ` · ${event.location}` : ""}`}
         actions={
           <>
+            <Button
+              variant="outline"
+              size="sm"
+              nativeButton={false}
+              render={<Link href={`/matches/new?event_id=${event.id}&set_id=${set?.id ?? ""}`} />}
+            >
+              <PlusIcon />
+              Registrar partida
+            </Button>
             <Button
               variant="outline"
               size="sm"

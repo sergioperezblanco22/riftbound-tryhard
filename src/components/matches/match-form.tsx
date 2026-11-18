@@ -113,9 +113,13 @@ function saveLastMatchPrefs(prefs: {
 export function MatchForm({
   options,
   match,
+  defaultEventId,
+  defaultSetId,
 }: {
   options: FilterOptions;
   match?: MatchEnrichedRow;
+  defaultEventId?: string | null;
+  defaultSetId?: string | null;
 }) {
   const isEdit = Boolean(match);
   const [state, formAction, pending] = useActionState(
@@ -147,6 +151,7 @@ export function MatchForm({
   );
   const [eventId, setEventId] = useState<string | null>(() => {
     if (isEdit) return match?.event_id ?? null;
+    if (defaultEventId) return defaultEventId;
     const prefs = loadLastMatchPrefs();
     // Último torneo registrado (el más reciente por fecha de inicio).
     const lastEvent =
@@ -162,6 +167,7 @@ export function MatchForm({
   // Valor por defecto: el último set disponible (el más reciente).
   const [setId, setSetId] = useState<string | null>(() => {
     if (isEdit) return match?.event_set_id ?? null;
+    if (defaultSetId) return defaultSetId;
     const lastSet = options.sets[options.sets.length - 1];
     return lastSet ? lastSet.id : match?.event_set_id ?? null;
   });

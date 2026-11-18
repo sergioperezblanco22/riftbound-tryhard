@@ -3,12 +3,14 @@ import { notFound } from "next/navigation";
 import {
   ArrowLeftIcon,
   PencilIcon,
+  PlusIcon,
   Trash2Icon,
   TrophyIcon,
 } from "lucide-react";
 
 import { ConfirmButton } from "@/components/confirm-button";
 import { NoteForm } from "@/components/matches/note-form";
+import { SideboardForm } from "@/components/matches/sideboard-form";
 import { PageHeader } from "@/components/page-header";
 import { ResultBadge } from "@/components/result-badge";
 import { Badge } from "@/components/ui/badge";
@@ -21,7 +23,11 @@ import {
   CardTitle,
 } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { deleteMatchAction, deleteNoteAction } from "@/lib/db/actions";
+import {
+  deleteMatchAction,
+  deleteMatchSideboardChangeAction,
+  deleteNoteAction,
+} from "@/lib/db/actions";
 import { getMatchDetail } from "@/lib/db/queries";
 import {
   formatDateTime,
@@ -272,6 +278,72 @@ export default async function MatchDetailPage({
           ) : (
             <p className="text-sm text-muted-foreground">
               Aún no hay notas en esta partida.
+            </p>
+          )}
+        </CardContent>
+      </Card>
+
+      {/* Sideboard tracker */}
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <PlusIcon className="size-4" />
+            Cambios de sideboard
+          </CardTitle>
+          <CardDescription>
+            Anota qué cartas sales y entras tras cada juego.
+          </CardDescription>
+        </CardHeader>
+        <CardContent className="space-y-4">
+          <SideboardForm matchId={match.id} />
+
+          {detail.sideboard_changes.length > 0 ? (
+            <>
+              <Separator />
+              <ul className="space-y-2">
+                {detail.sideboard_changes.map((change) => (
+                  <li
+                    key={change.id}
+                    className="flex items-start justify-between gap-3 rounded-lg border p-3"
+                  >
+                    <div className="space-y-1">
+                      <div className="flex flex-wrap items-center gap-2">
+                        <Badge variant="secondary">
+                          Juego {change.game_number}
+                        </Badge>
+                      </div>
+                      <p className="text-sm">
+                        <span className="text-muted-foreground">Salen:</span>{" "}
+                        {change.cards_out}
+                      </p>
+                      <p className="text-sm">
+                        <span className="text-muted-foreground">Entran:</span>{" "}
+                        {change.cards_in}
+                      </p>
+                    </div>
+                    <form action={deleteMatchSideboardChangeAction}>
+                      <input type="hidden" name="id" value={change.id} />
+                      <input
+                        type="hidden"
+                        name="match_id"
+                        value={match.id}
+                      />
+                      <ConfirmButton
+                        variant="ghost"
+                        size="icon-sm"
+                        message="¿Eliminar este cambio de sideboard?"
+                        aria-label="Eliminar cambio de sideboard"
+                      >
+                        <Trash2Icon />
+                      </ConfirmButton>
+                    </form>
+                  </li>
+                ))}
+              </ul>
+            </>
+          ) : (
+            <p className="text-sm text-muted-foreground">
+              Aún no hay cambios de sideboard registrados.
             </p>
           )}
         </CardContent>

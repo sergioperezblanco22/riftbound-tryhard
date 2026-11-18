@@ -9,8 +9,16 @@ import { getFilterOptions } from "@/lib/db/queries";
 
 export const metadata = { title: "Registrar partida" };
 
-export default async function NewMatchPage() {
+export default async function NewMatchPage({
+  searchParams,
+}: PageProps<"/matches/new">) {
+  const params = await searchParams;
   const options = await getFilterOptions();
+
+  const first = (value: string | string[] | undefined): string | null => {
+    if (Array.isArray(value)) return value[0] ?? null;
+    return value ?? null;
+  };
 
   return (
     <div className="flex flex-col gap-6">
@@ -27,7 +35,11 @@ export default async function NewMatchPage() {
 
       <Card>
         <CardContent>
-          <MatchForm options={options} />
+          <MatchForm
+            options={options}
+            defaultEventId={first(params.event_id)}
+            defaultSetId={first(params.set_id)}
+          />
         </CardContent>
       </Card>
     </div>

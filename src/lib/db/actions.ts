@@ -397,3 +397,53 @@ export async function deleteNoteAction(formData: FormData): Promise<void> {
   await supabase.from("match_notes").delete().eq("id", str(formData, "id"));
   revalidatePath(`/matches/${matchId}`);
 }
+
+// -----------------------------------------------------------------------------
+// Sideboard tracker
+// -----------------------------------------------------------------------------
+
+export async function createMatchSideboardChangeAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { ok: false, error: DEMO_ERROR };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sesión no válida." };
+
+  const matchId = str(formData, "match_id");
+  const gameNumber = str(formData, "game_number");
+  const cardsOut = str(formData, "cards_out");
+  const cardsIn = str(formData, "cards_in");
+
+  if (!matchId || !gameNumber || !cardsOut || !cardsIn) {
+    return { ok: false, error: "Todos los campos son obligatorios." };
+  }
+
+  const { error } = await supabase.from("match_sideboard_changes").insert({
+    match_id: matchId,
+    game_number: Number(gameNumber),
+    cards_out: cardsOut,
+    cards_in: cardsIn,
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath(`/matches/${matchId}`);
+  return { ok: true, message: "Cambio de sideboard guardado." };
+}
+
+export async function deleteMatchSideboardChangeAction(
+  formData: FormData
+): Promise<void> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return;
+  const matchId = str(formData, "match_id");
+  await supabase
+    .from("match_sideboard_changes")
+    .delete()
+    .eq("id", str(formData, "id"));
+  revalidatePath(`/matches/${matchId}`);
+}

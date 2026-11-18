@@ -6,6 +6,7 @@ import type {
   MatchEnrichedRow,
   MatchGameRow,
   MatchNoteRow,
+  MatchSideboardChangeRow,
   NoteCategory,
   Outcome,
   ProfileRow,
@@ -27,6 +28,7 @@ export interface DemoStore {
   matches: MatchEnrichedRow[];
   games: MatchGameRow[];
   notes: MatchNoteRow[];
+  sideboard_changes: MatchSideboardChangeRow[];
 }
 
 const USER_ID = "00000000-0000-4000-8000-000000000001";
@@ -283,6 +285,7 @@ export function getDemoStore(): DemoStore {
     code: l.code,
     name: l.name,
     title: l.title,
+    image_url: null,
     active: true,
   }));
   const legendById = new Map(legends.map((l) => [l.id, l]));
@@ -515,6 +518,7 @@ export function getDemoStore(): DemoStore {
     matches,
     games,
     notes,
+    sideboard_changes: [],
   };
 
   return cached;

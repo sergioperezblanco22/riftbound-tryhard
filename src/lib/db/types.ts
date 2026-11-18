@@ -61,6 +61,8 @@ export interface LegendRow {
   name: string;
   /** Nombre completo de la carta ("Riven, The Exile"), si se conoce. */
   title: string | null;
+  /** URL de la imagen de la leyenda/carta (opcional). */
+  image_url: string | null;
   active: boolean;
 }
 
@@ -115,6 +117,15 @@ export interface MatchNoteRow {
   category: NoteCategory;
   content: string;
   tags: string[];
+  created_at: string;
+}
+
+export interface MatchSideboardChangeRow {
+  id: string;
+  match_id: string;
+  game_number: number;
+  cards_out: string;
+  cards_in: string;
   created_at: string;
 }
 
@@ -283,6 +294,7 @@ export interface MatchDetail {
   match: MatchEnrichedRow;
   games: MatchGameRow[];
   notes: MatchNoteRow[];
+  sideboard_changes: MatchSideboardChangeRow[];
 }
 
 // -----------------------------------------------------------------------------
