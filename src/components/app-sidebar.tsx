@@ -7,6 +7,7 @@ import {
   BotIcon,
   CalendarDaysIcon,
   LayoutDashboardIcon,
+  LayoutListIcon,
   SparklesIcon,
   SwordsIcon,
   Table2Icon,
@@ -31,6 +32,7 @@ const NAV_ITEMS = [
   { href: "/matches", label: "Partidas", icon: SwordsIcon },
   { href: "/decks", label: "Mazos", icon: BookOpenIcon },
   { href: "/matchups", label: "Matchups", icon: Table2Icon },
+  { href: "/sideboards", label: "Sideboards", icon: LayoutListIcon },
   { href: "/events", label: "Torneos", icon: CalendarDaysIcon },
   { href: "/coach", label: "AI Coach", icon: BotIcon },
 ];
