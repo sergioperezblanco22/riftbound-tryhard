@@ -1,6 +1,7 @@
 "use client";
 
 import { useActionState, useState } from "react";
+import { useEffect } from "react";
 import { ArrowLeftIcon, BookOpenIcon, PencilIcon, Trash2Icon } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
@@ -15,6 +16,7 @@ import {
   deleteMatchupSideboardNoteAction,
   updateMatchupSideboardNoteAction,
 } from "@/lib/db/actions";
+import { getMatchupSideboardNote } from "@/lib/db/queries";
 import type { MatchupSideboardNoteRow } from "@/lib/db/types";
 
 interface SideboardNoteFormProps {
@@ -40,6 +42,8 @@ export default function SideboardNoteForm({
   const [title, setTitle] = useState(initialNote?.title ?? "");
   const [myKeyCards, setMyKeyCards] = useState(initialNote?.my_key_cards ?? "");
   const [rivalKeyCards, setRivalKeyCards] = useState(initialNote?.rival_key_cards ?? "");
+  const [myCardsOut, setMyCardsOut] = useState(initialNote?.my_cards_out ?? "");
+  const [myCardsIn, setMyCardsIn] = useState(initialNote?.my_cards_in ?? "");
   const [notes, setNotes] = useState(initialNote?.notes ?? "");
 
   const hasNote = !!initialNote;
@@ -105,6 +109,22 @@ export default function SideboardNoteForm({
                 </div>
               </div>
             )}
+            {initialNote?.my_cards_out && (
+              <div className="grid gap-4 sm:grid-cols-2 mb-4">
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">
+                    Cartas que quito (sideboard out)
+                  </p>
+                  <p className="text-sm">{initialNote.my_cards_out}</p>
+                </div>
+                <div>
+                  <p className="text-xs font-medium text-muted-foreground mb-1">
+                    Cartas que añado (sideboard in)
+                  </p>
+                  <p className="text-sm">{initialNote.my_cards_in}</p>
+                </div>
+              </div>
+            )}
             {initialNote?.notes && (
               <div className="mb-4">
                 <p className="text-xs font-medium text-muted-foreground mb-1">
@@ -149,28 +169,54 @@ export default function SideboardNoteForm({
                   />
                 </div>
 
-                <div>
-                  <Label htmlFor="my_key_cards">Cartas clave tuyas</Label>
-                  <Textarea
-                    id="my_key_cards"
-                    name="my_key_cards"
-                    defaultValue={myKeyCards}
-                    onChange={(e) => setMyKeyCards(e.target.value)}
-                    rows={3}
-                    placeholder="Ej. 2x Eliminar, 1x Recuperar..."
-                  />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="my_key_cards">Cartas clave tuyas</Label>
+                    <Textarea
+                      id="my_key_cards"
+                      name="my_key_cards"
+                      defaultValue={myKeyCards}
+                      onChange={(e) => setMyKeyCards(e.target.value)}
+                      rows={3}
+                      placeholder="Ej. 2x Eliminar, 1x Recuperar..."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="rival_key_cards">Cartas clave del rival</Label>
+                    <Textarea
+                      id="rival_key_cards"
+                      name="rival_key_cards"
+                      defaultValue={rivalKeyCards}
+                      onChange={(e) => setRivalKeyCards(e.target.value)}
+                      rows={3}
+                      placeholder="Ej. 2x Contrahechizo, 1x Amenaza..."
+                    />
+                  </div>
                 </div>
 
-                <div>
-                  <Label htmlFor="rival_key_cards">Cartas clave del rival</Label>
-                  <Textarea
-                    id="rival_key_cards"
-                    name="rival_key_cards"
-                    defaultValue={rivalKeyCards}
-                    onChange={(e) => setRivalKeyCards(e.target.value)}
-                    rows={3}
-                    placeholder="Ej. 2x Contrahechizo, 1x Amenaza..."
-                  />
+                <div className="grid gap-4 sm:grid-cols-2">
+                  <div>
+                    <Label htmlFor="my_cards_out">Cartas que quito</Label>
+                    <Textarea
+                      id="my_cards_out"
+                      name="my_cards_out"
+                      defaultValue={myCardsOut}
+                      onChange={(e) => setMyCardsOut(e.target.value)}
+                      rows={3}
+                      placeholder="Cartas que sacas del mazo..."
+                    />
+                  </div>
+                  <div>
+                    <Label htmlFor="my_cards_in">Cartas que añado</Label>
+                    <Textarea
+                      id="my_cards_in"
+                      name="my_cards_in"
+                      defaultValue={myCardsIn}
+                      onChange={(e) => setMyCardsIn(e.target.value)}
+                      rows={3}
+                      placeholder="Cartas que metes en el mazo..."
+                    />
+                  </div>
                 </div>
 
                 <div>

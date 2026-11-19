@@ -20,6 +20,11 @@ export function DeckForm({ legends }: { legends: LegendRow[] }) {
     INITIAL
   );
   const [legendId, setLegendId] = useState<string | null>(null);
+  const [legendSearch, setLegendSearch] = useState("");
+
+  const filteredLegends = legends.filter((legend) =>
+    legend.name.toLowerCase().includes(legendSearch.toLowerCase())
+  );
 
   return (
     <form action={formAction} className="flex flex-col gap-4">
@@ -43,11 +48,26 @@ export function DeckForm({ legends }: { legends: LegendRow[] }) {
           emptyLabel="Sin leyenda"
           value={legendId}
           onValueChange={setLegendId}
-          options={legends.map((legend) => ({
+          options={filteredLegends.map((legend) => ({
             value: legend.id,
             label: legendLabel(legend),
           }))}
         />
+      </div>
+
+      <div className="grid gap-4 sm:grid-cols-2">
+        <div className="col-span-full">
+          <Label htmlFor="deck-legend-search" className="mb-1.5">
+            Buscar leyenda por nombre
+          </Label>
+          <Input
+            id="deck-legend-search"
+            placeholder="Escribe para filtrar leyendas..."
+            value={legendSearch}
+            onChange={(e) => setLegendSearch(e.target.value)}
+            className="w-full"
+          />
+        </div>
       </div>
 
       <div className="grid gap-4 sm:grid-cols-2">

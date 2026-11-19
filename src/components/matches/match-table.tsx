@@ -82,7 +82,7 @@ export function MatchTable({
                   <>
                     <LegendAvatar
                       legend={legendById.get(match.opponent_legend_id)!}
-                      size="sm"
+                      size="lg"
                     />
                     <Badge variant="outline">
                       {match.opponent_legend_name}

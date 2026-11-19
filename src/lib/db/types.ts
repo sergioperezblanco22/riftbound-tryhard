@@ -305,6 +305,8 @@ export interface MatchupSideboardNoteRow {
   title: string;
   my_key_cards: string | null;
   rival_key_cards: string | null;
+  my_cards_out: string | null;
+  my_cards_in: string | null;
   notes: string | null;
   active: boolean;
   created_at: string;

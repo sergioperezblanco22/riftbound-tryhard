@@ -13,6 +13,7 @@
 --   0005_legend_images.sql
 --   0006_populate_legend_images.sql
 --   0007_matchup_sideboard_notes.sql
+--   0008_sideboard_cards.sql
 -- ===========================================================================
 
 -- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
@@ -1226,3 +1227,21 @@ begin
       with check (auth.uid() = user_id);
   end if;
 end $$;
+
+-- >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+-- 0008_sideboard_cards.sql
+-- <<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<<
+
+-- =============================================================================
+-- Riftbound Competitive Tracker - Migracion 0008
+-- Sideboard cards: cartas que se quitan y se añaden por matchup
+-- =============================================================================
+-- Agrega columnas para registrar las cartas clave que se sacan y se meten
+-- en el sideboard de cada matchup teorico.
+-- =============================================================================
+
+alter table public.matchup_sideboard_notes
+  add column if not exists my_cards_out text;
+
+alter table public.matchup_sideboard_notes
+  add column if not exists my_cards_in text;

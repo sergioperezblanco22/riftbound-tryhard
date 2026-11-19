@@ -470,6 +470,8 @@ export async function createMatchupSideboardNoteAction(
   const title = str(formData, "title");
   const myKeyCards = str(formData, "my_key_cards") ?? null;
   const rivalKeyCards = str(formData, "rival_key_cards") ?? null;
+  const myCardsOut = str(formData, "my_cards_out") ?? null;
+  const myCardsIn = str(formData, "my_cards_in") ?? null;
   const notes = str(formData, "notes") ?? null;
 
   if (!myLegendId || !rivalLegendId || !title) {
@@ -483,6 +485,8 @@ export async function createMatchupSideboardNoteAction(
     title,
     my_key_cards: myKeyCards,
     rival_key_cards: rivalKeyCards,
+    my_cards_out: myCardsOut,
+    my_cards_in: myCardsIn,
     notes,
   });
   if (error) return { ok: false, error: error.message };
@@ -509,6 +513,8 @@ export async function updateMatchupSideboardNoteAction(
   const title = str(formData, "title");
   const myKeyCards = str(formData, "my_key_cards") ?? null;
   const rivalKeyCards = str(formData, "rival_key_cards") ?? null;
+  const myCardsOut = str(formData, "my_cards_out") ?? null;
+  const myCardsIn = str(formData, "my_cards_in") ?? null;
   const notes = str(formData, "notes") ?? null;
 
   if (!id || !title) {
@@ -517,7 +523,14 @@ export async function updateMatchupSideboardNoteAction(
 
   const { error } = await supabase
     .from("matchup_sideboard_notes")
-    .update({ title, my_key_cards: myKeyCards, rival_key_cards: rivalKeyCards, notes })
+    .update({
+      title,
+      my_key_cards: myKeyCards,
+      rival_key_cards: rivalKeyCards,
+      my_cards_out: myCardsOut,
+      my_cards_in: myCardsIn,
+      notes,
+    })
     .eq("id", id)
     .eq("user_id", user.id);
   if (error) return { ok: false, error: error.message };
