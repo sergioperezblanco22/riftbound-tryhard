@@ -88,6 +88,7 @@ export default async function MatchesPage({
 
       <MatchTable
         matches={matches}
+        legends={options.legends}
         emptyLabel={
           query
             ? `No hay partidas que coincidan con "${query}".`

@@ -13,17 +13,21 @@ import {
 } from "@/components/ui/table";
 import { ResultBadge } from "@/components/result-badge";
 import { formatDate, formatScore, noteCategoryLabel } from "@/lib/format";
-import type { MatchEnrichedRow } from "@/lib/db/types";
+import type { MatchEnrichedRow, LegendRow } from "@/lib/db/types";
+import { LegendAvatar } from "@/components/ui/legend-avatar";
 
 export function MatchTable({
   matches,
+  legends,
   emptyLabel = "Todavía no hay partidas registradas.",
   className,
 }: {
   matches: MatchEnrichedRow[];
+  legends?: LegendRow[];
   emptyLabel?: string;
   className?: string;
 }) {
+  const legendById = legends ? new Map(legends.map((l) => [l.id, l])) : null;
   if (matches.length === 0) {
     return (
       <div className="flex flex-col items-center justify-center gap-2 rounded-xl border border-dashed p-10 text-center">
@@ -73,8 +77,18 @@ export function MatchTable({
                   </span>
                 </div>
               </TableCell>
-              <TableCell>
-                {match.opponent_legend_name ? (
+              <TableCell className="flex items-center gap-2">
+                {match.opponent_legend_id && legendById?.get(match.opponent_legend_id) ? (
+                  <>
+                    <LegendAvatar
+                      legend={legendById.get(match.opponent_legend_id)!}
+                      size="sm"
+                    />
+                    <Badge variant="outline">
+                      {match.opponent_legend_name}
+                    </Badge>
+                  </>
+                ) : match.opponent_legend_name ? (
                   <Badge variant="outline">
                     {match.opponent_legend_name}
                   </Badge>

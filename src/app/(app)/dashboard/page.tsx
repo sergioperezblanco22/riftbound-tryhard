@@ -275,6 +275,7 @@ export default async function DashboardPage({
         <CardContent>
           <MatchTable
             matches={data.recent}
+            legends={options.legends}
             emptyLabel="No hay partidas que cumplan los filtros."
             className="border-0 bg-transparent"
           />

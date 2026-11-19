@@ -18,6 +18,7 @@ import {
 } from "@/components/ui/popover";
 import { MIN_SAMPLE_SIZE, type LegendRow, type MatchupCell } from "@/lib/db/types";
 import { formatWinrate, winrateColor } from "@/lib/format";
+import { LegendAvatar } from "@/components/ui/legend-avatar";
 
 interface MatrixRow {
   key: string;
@@ -90,9 +91,9 @@ export function MatchupMatrix({
                 <th
                   key={legend.id}
                   title={legend.name}
-                  className="border-b px-1.5 py-2 text-center text-xs font-medium text-muted-foreground"
+                  className="border-b px-1 py-2 text-center"
                 >
-                  {legend.code}
+                  <LegendAvatar legend={legend} size="sm" />
                 </th>
               ))}
             </tr>
