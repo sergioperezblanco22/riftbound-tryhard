@@ -320,4 +320,4 @@ export interface DashboardData {
 }
 
 /** Minimo de partidas para considerar un matchup como evidencia solida (5.6). */
-export const MIN_SAMPLE_SIZE = 5;
+export const MIN_SAMPLE_SIZE = 3;
