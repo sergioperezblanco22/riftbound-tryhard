@@ -45,30 +45,32 @@ export default function SideboardsList({
       )}
 
       {filtered.length > 0 && (
-        <div className="grid gap-2 md:grid-cols-3 lg:grid-cols-4 xl:grid-cols-5">
+        <div className="grid gap-3 md:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4">
           {filtered.map((legend) => (
             <Card
               key={legend.id}
-              className="cursor-pointer group hover:border-primary/50 transition-colors"
+              className="cursor-pointer group hover:border-primary/50 transition-colors h-full"
             >
               <CardHeader>
-                <CardTitle className="text-center text-sm font-medium">
+                <CardTitle className="text-center text-sm font-medium mb-2">
                   {legend.name}
                 </CardTitle>
               </CardHeader>
-              <CardContent className="flex flex-col items-center gap-2 p-3">
+              <CardContent className="flex flex-col items-center gap-2 p-4">
                 <Link
                   href={`/sideboards/${legend.id}`}
-                  className="flex flex-col items-center gap-1"
+                  className="flex flex-col items-center gap-2"
                 >
-                  <LegendAvatar
-                    legend={{
-                      ...legend,
-                      image_url: legend.image_url ?? null,
-                    }}
-                    size="lg"
-                  />
-                  <span className="text-xs text-muted-foreground truncate">
+                  <div className="relative group relative">
+                    <LegendAvatar
+                      legend={{
+                        ...legend,
+                        image_url: legend.image_url ?? null,
+                      }}
+                      size="xl"
+                    />
+                  </div>
+                  <span className="text-sm text-muted-foreground truncate">
                     {legend.title ?? legend.name}
                   </span>
                 </Link>

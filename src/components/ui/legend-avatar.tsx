@@ -21,7 +21,7 @@ export function LegendAvatar({
     default: "size-8",
     sm: "size-6",
     lg: "size-12",
-    xl: "size-16",
+    xl: "size-24",
   };
 
   return (
