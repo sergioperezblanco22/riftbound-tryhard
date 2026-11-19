@@ -93,7 +93,12 @@ export function MatchupMatrix({
                   title={legend.name}
                   className="border-b px-1 py-2 text-center"
                 >
-                  <LegendAvatar legend={legend} size="sm" />
+                  <div className="flex flex-col items-center gap-1">
+                    <LegendAvatar legend={legend} size="sm" />
+                    <span className="text-[0.55rem] font-medium truncate leading-none">
+                      {legend.name}
+                    </span>
+                  </div>
                 </th>
               ))}
             </tr>
