@@ -16,6 +16,7 @@ const PROTECTED_PREFIXES = [
   "/events",
   "/coach",
   "/settings",
+  "/sideboards",
 ];
 
 const AUTH_PATHS = ["/login", "/register"];

@@ -297,6 +297,20 @@ export interface MatchDetail {
   sideboard_changes: MatchSideboardChangeRow[];
 }
 
+export interface MatchupSideboardNoteRow {
+  id: string;
+  user_id: string;
+  my_legend_id: string;
+  rival_legend_id: string;
+  title: string;
+  my_key_cards: string | null;
+  rival_key_cards: string | null;
+  notes: string | null;
+  active: boolean;
+  created_at: string;
+  updated_at: string;
+}
+
 // -----------------------------------------------------------------------------
 // Datos agregados para pantallas
 // -----------------------------------------------------------------------------

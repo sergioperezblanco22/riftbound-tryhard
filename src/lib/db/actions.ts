@@ -4,6 +4,7 @@ import { revalidatePath } from "next/cache";
 import { redirect } from "next/navigation";
 
 import { createServerSupabaseClient } from "@/lib/supabase/server";
+import type { MatchupSideboardNoteRow } from "@/lib/db/types";
 import {
   deckInputSchema,
   deckVersionInputSchema,
@@ -446,4 +447,149 @@ export async function deleteMatchSideboardChangeAction(
     .delete()
     .eq("id", str(formData, "id"));
   revalidatePath(`/matches/${matchId}`);
+}
+
+// -----------------------------------------------------------------------------
+// Matchup sideboard notes
+// -----------------------------------------------------------------------------
+
+export async function createMatchupSideboardNoteAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { ok: false, error: DEMO_ERROR };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sesión no válida." };
+
+  const myLegendId = str(formData, "my_legend_id");
+  const rivalLegendId = str(formData, "rival_legend_id");
+  const title = str(formData, "title");
+  const myKeyCards = str(formData, "my_key_cards") ?? null;
+  const rivalKeyCards = str(formData, "rival_key_cards") ?? null;
+  const notes = str(formData, "notes") ?? null;
+
+  if (!myLegendId || !rivalLegendId || !title) {
+    return { ok: false, error: "Faltan campos obligatorios." };
+  }
+
+  const { error } = await supabase.from("matchup_sideboard_notes").insert({
+    user_id: user.id,
+    my_legend_id: myLegendId,
+    rival_legend_id: rivalLegendId,
+    title,
+    my_key_cards: myKeyCards,
+    rival_key_cards: rivalKeyCards,
+    notes,
+  });
+  if (error) return { ok: false, error: error.message };
+
+  revalidatePath("/sideboards");
+  revalidatePath(`/sideboards/${myLegendId}`);
+  revalidatePath(`/sideboards/${myLegendId}/${rivalLegendId}`);
+  return { ok: true, message: "Nota de sideboard guardada." };
+}
+
+export async function updateMatchupSideboardNoteAction(
+  _prev: ActionState,
+  formData: FormData
+): Promise<ActionState> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return { ok: false, error: DEMO_ERROR };
+
+  const {
+    data: { user },
+  } = await supabase.auth.getUser();
+  if (!user) return { ok: false, error: "Sesión no válida." };
+
+  const id = str(formData, "id");
+  const title = str(formData, "title");
+  const myKeyCards = str(formData, "my_key_cards") ?? null;
+  const rivalKeyCards = str(formData, "rival_key_cards") ?? null;
+  const notes = str(formData, "notes") ?? null;
+
+  if (!id || !title) {
+    return { ok: false, error: "Faltan campos obligatorios." };
+  }
+
+  const { error } = await supabase
+    .from("matchup_sideboard_notes")
+    .update({ title, my_key_cards: myKeyCards, rival_key_cards: rivalKeyCards, notes })
+    .eq("id", id)
+    .eq("user_id", user.id);
+  if (error) return { ok: false, error: error.message };
+
+  // Obtener los ids de leyenda para revalidar rutas
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("my_legend_id, rival_legend_id")
+    .eq("id", id)
+    .single();
+
+  if (data) {
+    revalidatePath("/sideboards");
+    revalidatePath(`/sideboards/${data.my_legend_id}`);
+    revalidatePath(`/sideboards/${data.my_legend_id}/${data.rival_legend_id}`);
+  }
+  return { ok: true, message: "Nota de sideboard actualizada." };
+}
+
+export async function deleteMatchupSideboardNoteAction(
+  formData: FormData
+): Promise<void> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return;
+  const id = str(formData, "id");
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("my_legend_id, rival_legend_id")
+    .eq("id", id)
+    .single();
+  await supabase.from("matchup_sideboard_notes").delete().eq("id", id);
+  if (data) {
+    revalidatePath("/sideboards");
+    revalidatePath(`/sideboards/${data.my_legend_id}`);
+    revalidatePath(`/sideboards/${data.my_legend_id}/${data.rival_legend_id}`);
+  }
+}
+
+// -----------------------------------------------------------------------------
+// Funciones de lectura para Server Components (matchup_sideboard_notes)
+// -----------------------------------------------------------------------------
+
+export async function getMatchupSideboardNoteServer(
+  myLegendId: string,
+  rivalLegendId: string
+): Promise<MatchupSideboardNoteRow | null> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return null;
+
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("*")
+    .eq("my_legend_id", myLegendId)
+    .eq("rival_legend_id", rivalLegendId)
+    .eq("active", true)
+    .maybeSingle();
+
+  return (data ?? null) as MatchupSideboardNoteRow | null;
+}
+
+export async function getMatchupSideboardNotesServer(
+  myLegendId: string
+): Promise<MatchupSideboardNoteRow[]> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return [];
+
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("*")
+    .eq("my_legend_id", myLegendId)
+    .eq("active", true)
+    .order("rival_legend_id");
+
+  return (data ?? []) as MatchupSideboardNoteRow[];
 }

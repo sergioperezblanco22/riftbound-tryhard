@@ -27,6 +27,7 @@ import type {
   MatchFilters,
   MatchNoteRow,
   MatchSideboardChangeRow,
+  MatchupSideboardNoteRow,
   MatchupCell,
   NoteSearchResult,
   ProfileRow,
@@ -581,6 +582,56 @@ export async function coachSearchNotes(params: {
 
 export async function getRecentNotes(limit = 10): Promise<NoteSearchResult[]> {
   return coachSearchNotes({ limit });
+}
+
+export async function getMatchupSideboardNotes(
+  myLegendId: string
+): Promise<MatchupSideboardNoteRow[]> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return [];
+
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("*")
+    .eq("my_legend_id", myLegendId)
+    .eq("active", true)
+    .order("rival_legend_id");
+
+  return (data ?? []) as MatchupSideboardNoteRow[];
+}
+
+export async function getMatchupSideboardNote(
+  myLegendId: string,
+  rivalLegendId: string
+): Promise<MatchupSideboardNoteRow | null> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return null;
+
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("*")
+    .eq("my_legend_id", myLegendId)
+    .eq("rival_legend_id", rivalLegendId)
+    .eq("active", true)
+    .maybeSingle();
+
+  return (data ?? null) as MatchupSideboardNoteRow | null;
+}
+
+export async function getAllMatchupSideboardNotes(): Promise<
+  MatchupSideboardNoteRow[]
+> {
+  const supabase = await createServerSupabaseClient();
+  if (!supabase) return [];
+
+  const { data } = await supabase
+    .from("matchup_sideboard_notes")
+    .select("*")
+    .eq("active", true)
+    .order("my_legend_id")
+    .order("rival_legend_id");
+
+  return (data ?? []) as MatchupSideboardNoteRow[];
 }
 
 export { isSupabaseConfigured };
